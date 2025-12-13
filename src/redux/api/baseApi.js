@@ -1,9 +1,8 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import Config from 'react-native-config';
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { axiosBaseQuery } from "../../context/axiosBaseQuery";
 export const baseApi = createApi({
   reducerPath: "baseApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: Config.API_URL,  // later .env এ নেবে
-  }),
+  baseQuery: axiosBaseQuery(),
+  tagTypes: ['auth'],
   endpoints: () => ({}),
 });

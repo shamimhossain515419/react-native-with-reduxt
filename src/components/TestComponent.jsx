@@ -12,7 +12,7 @@ export default function TestComponent() {
   return (
     <View style={{ padding: 20 }}>
       <Text style={{ fontSize: 20 }}>Aside: {aside ? "TRUE" : "FALSE"}</Text>
-
+      <Text style={{backgroundColor:"#007A4D"}}>New Button</Text>  
       <Button
         title="Toggle"
         onPress={() => dispatch(navbarToggle())}
