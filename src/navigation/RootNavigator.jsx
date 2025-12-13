@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 
 
 export default function RootNavigator() {
-  const token = useSelector((state) => state.auth.token);
+  const token = useSelector((state) => state.auth.accessToken);
   return (
     <NavigationContainer>
       {token ? <AppNavigator /> : <PublicNavigator />}

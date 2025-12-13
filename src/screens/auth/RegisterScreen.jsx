@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
@@ -14,7 +15,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../redux/slices/authSlice';
 import { useRegisterMutation } from '../../redux/api/authApi';
-// Validation schema
+import { saveRefreshToken } from '../../context/secureStore';
+
+/* -------------------- VALIDATION -------------------- */
 const schema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -22,9 +25,12 @@ const schema = Yup.object().shape({
     .min(6, 'Password must be at least 6 characters')
     .required('Password is required'),
 });
+
+/* -------------------- SCREEN -------------------- */
 export default function RegisterScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+
   const {
     control,
     handleSubmit,
@@ -32,30 +38,40 @@ export default function RegisterScreen() {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const [register]=useRegisterMutation();
-  const onSubmit =async data => {
+
+  const [register, { isLoading }] = useRegisterMutation();
+
+  /* -------------------- SUBMIT -------------------- */
+  const onSubmit = async data => {
     try {
-     
-      const newData = {
-       ...data
-      };
-      console.log(newData,'newData')
-      const res = await register(newData).unwrap();
-      console.log(res,'dfd')
-      return
-      dispatch(loginSuccess(newData));
+      const res = await register(data).unwrap();
+      // save refresh token securely
+      if (res?.data?.refreshToken) {
+        await saveRefreshToken(res?.data?.refreshToken);
+      }
+      // redux login
+      dispatch(
+        loginSuccess({
+          user: res?.data?.user,
+          accessToken: res?.data?.accessToken,
+        }),
+      );
       Toast.show({
         type: 'success',
-        text1: 'Register  Successfully',
+        text1: 'Registration successful',
       });
     } catch (error) {
-      console.log(error,'errorerror')
       Toast.show({
         type: 'error',
-        text1: error.message,
+        text1:
+          error?.data?.message ||
+          error?.error ||
+          'Registration failed',
       });
     }
   };
+
+  /* -------------------- UI -------------------- */
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
@@ -65,6 +81,7 @@ export default function RegisterScreen() {
       <Controller
         control={control}
         name="name"
+        defaultValue=""
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
@@ -81,6 +98,7 @@ export default function RegisterScreen() {
       <Controller
         control={control}
         name="email"
+        defaultValue=""
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
@@ -92,13 +110,16 @@ export default function RegisterScreen() {
           />
         )}
       />
-      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+      {errors.email && (
+        <Text style={styles.error}>{errors.email.message}</Text>
+      )}
 
       {/* PASSWORD */}
       <Text style={styles.label}>Password</Text>
       <Controller
         control={control}
         name="password"
+        defaultValue=""
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
@@ -113,23 +134,32 @@ export default function RegisterScreen() {
         <Text style={styles.error}>{errors.password.message}</Text>
       )}
 
-      {/* SUBMIT BUTTON */}
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>Register</Text>
+      {/* SUBMIT */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleSubmit(onSubmit)}
+        disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Register</Text>
+        )}
       </TouchableOpacity>
 
-      {/* Redirect Link */}
+      {/* REDIRECT */}
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <Text style={styles.redirect}>
           Already have an account?{' '}
           <Text style={styles.redirectLink}>Login</Text>
         </Text>
       </TouchableOpacity>
+
       <Toast />
     </View>
   );
 }
 
+/* -------------------- STYLES -------------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -143,12 +173,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-
   label: {
     fontSize: 16,
     marginTop: 10,
   },
-
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -156,25 +184,29 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 5,
   },
-
   error: {
     color: 'red',
     marginTop: 3,
   },
-
   button: {
     backgroundColor: '#2E86DE',
     padding: 15,
     marginTop: 25,
     borderRadius: 8,
+    alignItems: 'center',
   },
-
   buttonText: {
     color: '#fff',
-    textAlign: 'center',
     fontSize: 18,
     fontWeight: '600',
   },
-  redirect: { textAlign: 'center', marginTop: 15, fontSize: 14 },
-  redirectLink: { color: '#2E86DE', fontWeight: '600' },
+  redirect: {
+    textAlign: 'center',
+    marginTop: 15,
+    fontSize: 14,
+  },
+  redirectLink: {
+    color: '#2E86DE',
+    fontWeight: '600',
+  },
 });

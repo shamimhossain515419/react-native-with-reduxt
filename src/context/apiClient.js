@@ -6,7 +6,7 @@ import { loginSuccess, logout } from '../redux/slices/authSlice';
 
 
 const apiClient = axios.create({
-  baseURL: 'http://10.0.2.2:8000/api',
+  baseURL: 'http://192.168.1.102:8000/api',
   timeout: 15000,
 });
 
@@ -14,7 +14,6 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const accessToken = store.getState().auth.accessToken;
-    console.log(accessToken,'accessToken')
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -28,7 +27,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    console.log(error.response,'error.response')
+    console.log(originalRequest,'originalRequest')
     if (
       error.response?.status === 401 &&
       !originalRequest._retry
@@ -40,7 +39,7 @@ apiClient.interceptors.response.use(
         if (!refreshToken) throw new Error('No refresh token');
 
         const res = await axios.post(
-          `http://10.0.2.2:8000/api/auth/refresh`,
+          `http://192.168.1.102:8000/api/auth/refresh`,
           { refreshToken }
         );
 
@@ -58,7 +57,6 @@ apiClient.interceptors.response.use(
         // retry original request
         originalRequest.headers.Authorization =
           `Bearer ${res.data.accessToken}`;
-
         return apiClient(originalRequest);
       } catch (err) {
         await clearRefreshToken();

@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
@@ -14,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../redux/slices/authSlice';
 import { saveRefreshToken } from '../../context/secureStore';
+import { useLoginMutation } from '../../redux/api/authApi';
 
 // Validation schema
 const schema = Yup.object().shape({
@@ -27,6 +29,7 @@ const schema = Yup.object().shape({
 const LoginScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const [login,{isLoading}]=useLoginMutation();
   const {
     control,
     handleSubmit,
@@ -37,22 +40,23 @@ const LoginScreen = () => {
 
   const onSubmit = async data => {
     try {
-      const newData = {
-        user: { email: data?.email, name: 'Md Shamim Hossain' },
-        token:"DDLdfdfgdDDFdfDdfdDd343dfdgdfDDFgdddfdfDFd"
-      };
-      dispatch(loginSuccess(newData));
-
-       await saveRefreshToken(newData?.token)
+     
+      const res = await login(data).unwrap();
+      console.log(res,'res')
+      //  await saveRefreshToken(newData?.token)
        Toast.show({
         type: 'success',
         text1: "Login Successfully",
       });
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: error?.message,
-      });
+      console.log(error,'errorerrorerrorerrorerror')
+     Toast.show({
+             type: 'error',
+             text1:
+               error?.data?.message ||
+               error?.error ||
+               'Login failed',
+           });
     }
   };
 
@@ -99,7 +103,11 @@ const LoginScreen = () => {
 
       {/* BUTTON */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>Login</Text>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Login</Text>
+        )}
       </TouchableOpacity>
       {/* Redirect Link */}
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>

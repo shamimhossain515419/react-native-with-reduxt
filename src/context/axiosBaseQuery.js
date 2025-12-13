@@ -13,11 +13,10 @@ export const axiosBaseQuery =
 
       return { data: result.data };
     } catch (axiosError) {
-        console.log(axiosError,'axiosError')
       return {
         error: {
           status: axiosError.response?.status,
-          message: axiosError.response?.data || axiosError.message,
+          data: axiosError.response?.data || axiosError.message,
         },
       };
     }
