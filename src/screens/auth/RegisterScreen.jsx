@@ -17,7 +17,6 @@ import { loginSuccess } from '../../redux/slices/authSlice';
 import { useRegisterMutation } from '../../redux/api/authApi';
 import { saveRefreshToken } from '../../context/secureStore';
 
-/* -------------------- VALIDATION -------------------- */
 const schema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -30,7 +29,6 @@ const schema = Yup.object().shape({
 export default function RegisterScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
   const {
     control,
     handleSubmit,
@@ -70,7 +68,6 @@ export default function RegisterScreen() {
       });
     }
   };
-
   /* -------------------- UI -------------------- */
   return (
     <View style={styles.container}>
