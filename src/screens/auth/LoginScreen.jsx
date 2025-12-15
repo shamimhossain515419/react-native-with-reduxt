@@ -29,7 +29,7 @@ const schema = Yup.object().shape({
 const LoginScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [login,{isLoading}]=useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
   const {
     control,
     handleSubmit,
@@ -40,23 +40,31 @@ const LoginScreen = () => {
 
   const onSubmit = async data => {
     try {
-     
+      console.log(data, 'datadata');
+
       const res = await login(data).unwrap();
-      console.log(res,'res')
-      //  await saveRefreshToken(newData?.token)
-       Toast.show({
-        type: 'success',
-        text1: "Login Successfully",
-      });
+      if (res.success) {
+        const newData = {
+          user: res?.data?.user,
+          accessToken: res?.data?.accessToken,
+        };
+        dispatch(loginSuccess(newData));
+        await saveRefreshToken(res?.data?.refreshToken);
+        Toast.show({
+          type: 'success',
+          text1: 'Login Successfully',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: res?.message,
+        });
+      }
     } catch (error) {
-      console.log(error,'errorerrorerrorerrorerror')
-     Toast.show({
-             type: 'error',
-             text1:
-               error?.data?.message ||
-               error?.error ||
-               'Login failed',
-           });
+      Toast.show({
+        type: 'error',
+        text1: error?.data?.message || error?.error || 'Login failed',
+      });
     }
   };
 
