@@ -47,4 +47,23 @@ export const inputStyleSheet = StyleSheet.create({
     marginTop: 4,
     fontSize: 13,
   },
+  button: {
+    backgroundColor: '#2E86DE',
+    padding: 15,
+    marginTop: 25,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+    noteInput: {
+    minHeight: 80,
+    paddingTop: 12,
+  },
+    fieldContainer: {
+    marginTop: 10,
+  },
 });

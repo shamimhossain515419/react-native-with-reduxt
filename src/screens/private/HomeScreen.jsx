@@ -58,7 +58,7 @@ const HomeScreen = () => {
         {/* Income */}
         <TouchableOpacity
           style={styles.box}
-          onPress={() => navigation.navigate("Income")}
+          onPress={() => navigation.navigate("NativeSelector")}
         >
           <Ionicons name="cash-outline" size={30} color="#16a34a" />
           <Text style={styles.boxTitle}>Income</Text>

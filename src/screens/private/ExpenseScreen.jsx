@@ -14,6 +14,13 @@ import { useNavigation } from '@react-navigation/native';
 const ExpenseScreen = () => {
   const { data, isLoading, isError } = useGetAllExpenseQuery();
   const navigation = useNavigation();
+  const handleDeleteExpense= async()=>{
+     try{
+       
+     }catch(error){
+
+     }
+  }
 
   if (isLoading) {
     return (
@@ -88,7 +95,7 @@ const ExpenseScreen = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.deleteButton}
-                    // onPress={() => handleDeleteExpense(item._id)}
+                    onPress={() => handleDeleteExpense(item._id)}
                   >
                     <Icon name="trash-outline" size={18} color="#DC2626" />
                   </TouchableOpacity>
